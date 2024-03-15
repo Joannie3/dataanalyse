@@ -15,7 +15,7 @@ from sklearn.metrics import accuracy_score
 
 #============ importation des données
 path = "googleplaystore.csv"
-raw_df = pd.read_csv(path, sep=",")
+raw_df = pd.read_csv(path, sep=",",decimal=".")
 raw_df = raw_df.drop(['Current Ver', 'Android Ver'], axis=1)
 
 #============ copie du dataset brut
@@ -78,12 +78,50 @@ result.rename(columns={'Sentiment_Polarity': 'AVG_Pol', 'Sentiment_Subjectivity'
 # result.columns.name = 'Sentiment'
 
 # Afficher le tableau résultant
-# print(result)
+print(result)
 
 
 # Fusionner le DataFrame résultant avec le DataFrame de base en utilisant la colonne 'App'
 merged_df = pd.merge(jeuxvideos_df, result, on='App', how='left')
 
+# Remplacer la valeur "Everyone" dans la colonne 'Price' par 0
+merged_df['Price'] = merged_df['Price'].replace('Everyone', 0)
+
+# Enlever le symbole dollar "$" de la colonne 'Price'
+merged_df['Price'] = merged_df['Price'].str.replace('$', '')
+
+# Convertir la colonne 'Price' en type de données numérique
+merged_df['Price'] = pd.to_numeric(merged_df['Price'])
+
+# Remplacer la valeur "+" dans la colonne 'Installs' par 0
+merged_df['Installs'] = merged_df['Installs'].str.replace('+', '')
+
+# Remplacer la chaîne "Varies with device" par 0 dans la colonne 'Size'
+merged_df['Size'] = merged_df['Size'].replace('Varies with device', '0k')
+
+# Fonction pour convertir les valeurs en mégaoctets (Mo) en kilooctets (ko)
+def convert_size(size):
+    size = str(size)  # Assurer que size est une chaîne de caractères
+    if 'M' in size or 'm' in size:
+        return float(size.replace('M', '').replace('m', '')) * 1024
+    elif 'K' in size or 'k' in size:
+        return float(size.replace('K', '').replace('k', ''))
+    else:
+        return float(size)
+
+# Appliquer la fonction de conversion à la colonne 'Size'
+merged_df['Size'] = merged_df['Size'].apply(convert_size)
+
+# Convertir la colonne 'Size' en type de données numériques
+merged_df['Size'] = pd.to_numeric(merged_df['Size'], errors='coerce')
+
+#enlever les valeurs = null par 0
+merged_df.fillna(0, inplace=True)
+
 # Enregistrer les données fusionnées dans un nouveau fichier
 merged_df.to_csv("merged_googleplaystore.csv", index=False)
-print(merged_df.head(15))
+
+print(merged_df.head(55))
+
+#on verifie les types de variables
+print(merged_df.dtypes)
