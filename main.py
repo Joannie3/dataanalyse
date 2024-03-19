@@ -115,12 +115,30 @@ merged_df['Size'] = merged_df['Size'].apply(convert_size)
 # Convertir la colonne 'Size' en type de données numériques
 merged_df['Size'] = pd.to_numeric(merged_df['Size'], errors='coerce')
 
+# Créer une nouvelle colonne pour chaque élément de date
+merged_df[['Last Updated Mois', 'Last Updated Jour', 'Last Updated Annee']] = merged_df['Last Updated'].str.split(expand=True)
+
 #enlever les valeurs = null par 0
 merged_df.fillna(0, inplace=True)
 
+# Calculer la moyenne de la colonne Rating par catégorie
+rating_mean_by_category = merged_df.groupby('Category')['Rating'].mean()
+
+# Créer un dictionnaire contenant les moyennes de rating par catégorie
+rating_mean_dict = rating_mean_by_category.to_dict()
+
+# Parcourir le DataFrame et remplacer les valeurs nulles dans la colonne Rating
+# par la moyenne correspondante de la catégorie, en arrondissant à 1 chiffre après la virgule
+for index, row in merged_df.iterrows():
+    if row['Rating'] == 0.0:
+        category_mean = rating_mean_dict.get(row['Category'], 0.0)
+        merged_df.loc[index, 'Rating'] = round(category_mean, 1)
+
+
 # Enregistrer les données fusionnées dans un nouveau fichier
 merged_df.to_csv("merged_googleplaystore.csv", index=False)
-
+# Enregistrer les données dans un fichier Excel
+merged_df.to_excel("Merged_GooglePlayStoreToExcel.xlsx", index=False)
 print(merged_df.head(55))
 
 #on verifie les types de variables
