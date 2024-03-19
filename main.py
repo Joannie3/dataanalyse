@@ -128,10 +128,18 @@ merged_df[['Last Updated Mois', 'Last Updated Jour', 'Last Updated Annee']] = me
 #enlever les valeurs = null par 0
 merged_df.fillna(0, inplace=True)
 
+#==========================================================================#
+#==============Ici on supprime les , dans la partie Last Updated Jour ===============#
+#==========================================================================#
+
+merged_df['Last Updated Jour'] = merged_df['Last Updated Jour'].str.replace(',', '')
+
+# Convertir les valeurs en entiers
+merged_df['Last Updated Jour'] = merged_df['Last Updated Jour'].astype(int)
 
 
 #==========================================================================#
-#==============Ici on supprime les + dans la partie install ===============#
+#==============Ici on supprime les , dans la partie install ===============#
 #==========================================================================#
 
 merged_df['Installs'] = merged_df['Installs'].str.replace(',', '')
