@@ -43,6 +43,8 @@ jeuxvideos_dfr.dtypes
 #============ afficher la dimension
 print(jeuxvideos_dfr.shape)
 
+
+
 #==================================================================================#
 #==============Je calcul le nombre de fois ou le sentiment apparait ===============#
 #==================================================================================#
@@ -233,10 +235,29 @@ merged_df['AVG_Sub'] = merged_df['AVG_Sub'].round(2)
 #========================================================#
 
 
-# Enregistrer les données fusionnées dans un nouveau fichier
+
+# Trouver les doublons
+duplicates = merged_df[merged_df.duplicated()]
+
+# Calculer la moyenne des doublons
+average_duplicates = duplicates.groupby(duplicates.columns.tolist()).mean().reset_index()
+
+# Supprimer les doublons du DataFrame original
+merged_df = merged_df.drop_duplicates()
+
+# Remplacer chaque occurrence des doublons par la moyenne correspondante
+for _, row in average_duplicates.iterrows():
+    app_name = row['App']
+    indices_to_replace = merged_df[merged_df['App'] == app_name].index
+    merged_df.loc[indices_to_replace] = row.values
+
+# Enregistrer les données sans doublons dans un nouveau fichier CSV
 merged_df.to_csv("merged_googleplaystore.csv", index=False)
-# Enregistrer les données dans un fichier Excel
+
+# Enregistrer les données sans doublons dans un fichier Excel
 merged_df.to_excel("Merged_GooglePlayStoreToExcel.xlsx", index=False)
+
+print("Les doublons ont été supprimés et les données ont été enregistrées dans les fichiers CSV et Excel.")
 print(merged_df.head(55))
 
 #on verifie les types de variables
