@@ -233,9 +233,6 @@ merged_df['AVG_Sub'] = merged_df['AVG_Sub'].round(2)
 #========================================================#
 #==============Je crée un nouveau fichier ===============#
 #========================================================#
-
-
-
 # Trouver les doublons
 duplicates = merged_df[merged_df.duplicated()]
 
@@ -249,7 +246,8 @@ merged_df = merged_df.drop_duplicates()
 for _, row in average_duplicates.iterrows():
     app_name = row['App']
     indices_to_replace = merged_df[merged_df['App'] == app_name].index
-    merged_df.loc[indices_to_replace] = row.values
+    for index in indices_to_replace:
+        merged_df.loc[index] = row.values 
 
 # Enregistrer les données sans doublons dans un nouveau fichier CSV
 merged_df.to_csv("merged_googleplaystore.csv", index=False)
