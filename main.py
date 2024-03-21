@@ -249,6 +249,29 @@ for _, row in average_duplicates.iterrows():
     for index in indices_to_replace:
         merged_df.loc[index] = row.values 
 
+
+
+# Convertir les valeurs de la colonne "Reviews" en flottants pour pouvoir les arrondir
+merged_df['Reviews'] = merged_df['Reviews'].astype(float)
+
+# Arrondir les valeurs de la colonne "Reviews" à l'entier le plus proche
+merged_df['Reviews'] = merged_df['Reviews'].round()
+
+# Convertir les valeurs de la colonne "Reviews" en entiers
+merged_df['Reviews'] = merged_df['Reviews'].astype(int)
+
+# Convertir les valeurs de la colonne "Installs" en flottants pour pouvoir calculer la moyenne
+merged_df['Installs'] = merged_df['Installs'].astype(float)
+
+# Calculer la moyenne des valeurs non nulles de la colonne "Installs" (en excluant les zéros)
+mean_installs = merged_df.loc[merged_df['Installs'] != 0, 'Installs'].mean()
+
+# Remplacer les valeurs à zéro par la moyenne arrondie à l'entier le plus proche
+merged_df['Installs'] = merged_df['Installs'].replace(0, round(mean_installs))
+
+# Convertir les valeurs de la colonne "Installs" en entiers
+merged_df['Installs'] = merged_df['Installs'].astype(int)
+
 # Enregistrer les données sans doublons dans un nouveau fichier CSV
 merged_df.to_csv("merged_googleplaystore.csv", index=False)
 
