@@ -236,6 +236,13 @@ merged_df['AVG_Sub'] = merged_df['AVG_Sub'].round(2)
 # Trouver les doublons
 duplicates = merged_df[merged_df.duplicated()]
 
+# Regrouper les doublons en ensembles de doublons
+duplicate_sets = duplicates.groupby(duplicates.columns.tolist(), as_index=False).apply(lambda x: x.drop_duplicates()).reset_index(drop=True)
+
+
+# Enregistrer les données avec les doublons dans un nouveau fichier CSV
+duplicate_sets.to_csv("doublons.csv", index=False)
+
 # Calculer la moyenne des doublons
 average_duplicates = duplicates.groupby(duplicates.columns.tolist()).mean().reset_index()
 
@@ -283,3 +290,13 @@ print(merged_df.head(55))
 
 #on verifie les types de variables
 print(merged_df.dtypes)
+
+
+# Calculer le nombre de valeurs uniques pour chaque colonne
+unique_counts = {}
+for column in merged_df.columns:
+    unique_counts[column] = len(merged_df[column].unique())
+
+# Afficher le nombre de valeurs uniques de chaque colonne
+for column, count in unique_counts.items():
+    print(f"Colonne '{column}': {count} valeurs uniques")
